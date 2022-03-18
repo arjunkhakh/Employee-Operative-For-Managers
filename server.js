@@ -1,7 +1,7 @@
 // Adding Dependencies
 const mysql = require('mysql2')
 const inq = require('inquirer')
-const consTab = require('console.table')
+const consTab = require('console.table');
 
 // Connection to my Database
 const connection = mysql.createConnection({
@@ -52,4 +52,49 @@ process.on('uncaughtException', function (err) {
 
 function firstPrompt() {
     console.log("Welcome To The Employee Tracker!")
+
+    inq.prompt({
+        type:'list',
+        name: "firstTask",
+        message: "What Would You Like To Do?",
+        choices: [
+        "View all departments",
+        "View all roles",
+        "View all employees", 
+        "Add a department", 
+        "Add a role", 
+        "Add an employee", 
+        "Update an employee role"
+    ]
+}).then(function ({ firstTask }) {
+    switch (firstTask) {
+      case "View all departments":
+        viewDepartment();
+        break;
+
+      case "View all roles":
+        viewRoles();
+        break;
+    
+      case "View all employees":
+        viewEmployee();
+        break;
+
+      case "Add a department":
+        addDepartment();
+        break;
+
+      case "Add a role":
+        addRole();
+        break;
+
+      case "Add an employee":
+        addEmployee();
+        break;
+
+      case "Update an employee role":
+        updateRole();
+        break;
+    }
+  });
 }
