@@ -98,3 +98,16 @@ function firstPrompt() {
     }
   });
 }
+
+function viewDepartment() {
+    const sql = `SELECT * FROM department`;
+
+    db.query(sql, (err, table) => {
+        if (err) {
+            return err
+        } else {
+            console.table(table)
+            firstPrompt();
+        }
+    })
+}
