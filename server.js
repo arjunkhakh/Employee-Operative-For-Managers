@@ -28,7 +28,6 @@ connection.connect(function (err) {
     █░░▄▀▄▀▄▀▄▀▄▀░░█░░▄▀░░██████████░░▄▀░░█░░▄▀░░█████████░░▄▀▄▀▄▀▄▀▄▀░░█░░▄▀▄▀▄▀▄▀▄▀░░███████░░▄▀░░███████░░▄▀▄▀▄▀▄▀▄▀░░█░░▄▀▄▀▄▀▄▀▄▀░░█
     █░░░░░░░░░░░░░░█░░░░░░██████████░░░░░░█░░░░░░█████████░░░░░░░░░░░░░░█░░░░░░░░░░░░░░███████░░░░░░███████░░░░░░░░░░░░░░█░░░░░░░░░░░░░░█
     █████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████
-    ████████████████████████████████████████████████████████████████████████████████████████████████████████████████████
     █░░░░░░░░░░░░░░█░░░░░░░░░░░░░░░░███░░░░░░░░░░░░░░█░░░░░░░░░░░░░░█░░░░░░██░░░░░░░░█░░░░░░░░░░░░░░█░░░░░░░░░░░░░░░░███
     █░░▄▀▄▀▄▀▄▀▄▀░░█░░▄▀▄▀▄▀▄▀▄▀▄▀░░███░░▄▀▄▀▄▀▄▀▄▀░░█░░▄▀▄▀▄▀▄▀▄▀░░█░░▄▀░░██░░▄▀▄▀░░█░░▄▀▄▀▄▀▄▀▄▀░░█░░▄▀▄▀▄▀▄▀▄▀▄▀░░███
     █░░░░░░▄▀░░░░░░█░░▄▀░░░░░░░░▄▀░░███░░▄▀░░░░░░▄▀░░█░░▄▀░░░░░░░░░░█░░▄▀░░██░░▄▀░░░░█░░▄▀░░░░░░░░░░█░░▄▀░░░░░░░░▄▀░░███
@@ -99,10 +98,11 @@ function firstPrompt() {
   });
 }
 
+// View All Department Function
 function viewDepartment() {
     const sql = `SELECT * FROM department`;
 
-    db.query(sql, (err, table) => {
+    connection.query(sql, (err, table) => {
         if (err) {
             return err
         } else {
@@ -110,4 +110,117 @@ function viewDepartment() {
             firstPrompt();
         }
     })
+}
+
+// View All Roles Function
+function viewRoles() {
+    const sql = `SELECT * FROM roles`;
+
+    connection.query(sql, (err, table) => {
+        if (err) {
+            return err
+        } else {
+            console.table(table)
+            firstPrompt();
+        }
+    })
+}
+
+// View All Employees Function
+function viewEmployee() {
+    const sql = `SELECT * FROM employee`;
+
+    connection.query(sql, (err, table) => {
+        if (err) {
+            return err
+        } else {
+            console.table(table)
+            firstPrompt();
+        }
+    })
+}
+
+// Adding A Department Function
+function addDepartment() {
+    return inquirer
+    .prompt([
+      {
+        type: 'input',
+        name: 'departmentName',
+        message: 'What is your Departments Name??',
+      },
+    ])
+    .then((answer) => {
+      const sql = `INSERT INTO department(name) VALUES (?)`;
+      connection.query(sql, answer.departmentName, (err, res) => {
+        if (err) {
+          console.log(err);
+          return;
+        } else {
+          console.log('Added the department successfully');
+          firstPrompt();
+        }
+      })
+    })
+}
+
+// Adding A Role Function
+function addRole() {
+    return inquirer
+    .prompt([
+      {
+        type: 'input',
+        name: 'roleName',
+        message: 'What is the name of the role?',
+      },
+      {
+        type: 'input',
+        name: 'roleSalary',
+        message: 'What is the salary of the role?',
+      },
+      {
+        type: 'list',
+        name: 'roleDepartment',
+        message: 'Which department does the role belong to?',
+        choices: depArray,
+      },
+    ])
+    .then((answers) => {
+      const sql = `INSERT INTO roles (title, salary, department_id) VALUES (?)`;
+      connection.query(sql, [[answers.roleName, answers.roleSalary, answers.roleDepartment]], (err, res) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log('Added the role successfully');
+
+          firstPrompt();
+        }
+      });
+    });
+};
+
+// An Empty Array to start off the list of Departments
+const depArray = [];
+
+// A Function to update the array of departments. It will start off as an empty array and will push all the new ones into the empty array
+function updateDepArray() {
+  departmentArr = [];
+  const sql = `SELECT * FROM department`;
+  return new Promise((resolve, reject) => {
+    connection.query(sql, (err, res) => {
+      if (err) {
+        console.log(err);
+        reject();
+      } else {
+        res.forEach((department) => {
+          let departmentObj = {
+            name: department.name,
+            value: department.id,
+          };
+          departmentArr.push(departmentObj);
+        });
+        resolve();
+      }
+    });
+  });
 }
