@@ -144,35 +144,33 @@ function viewEmployee() {
 }
 
 // Adding A Department Function
-function addDepartment() {
+async function addDepartment() {
   updateDepArray()
-    return inquirer
+    const answer = await inq
     .prompt([
       {
         type: 'input',
         name: 'departmentName',
         message: 'What is your Departments Name??',
       },
-    ])
-    .then((answer) => {
-      const sql = `INSERT INTO department(name) VALUES (?)`;
-      connection.query(sql, answer.departmentName, (err, res) => {
-        if (err) {
-          console.log(err)
-         firstPrompt();
-        } else {
-          console.log('Added the department successfully');
-          firstPrompt();
-        }
-      })
-    })
+    ]);
+  const sql = `INSERT INTO department(name) VALUES (?)`;
+  connection.query(sql, answer.departmentName, (err, res) => {
+    if (err) {
+      console.log(err);
+      firstPrompt();
+    } else {
+      console.log('Added the department successfully');
+      firstPrompt();
+    }
+  });
 }
 
 // Adding A Role Function
-function addRole() {
+async function addRole() {
   updateRolesArr()
   updateDepArray()
-    return inquirer
+    const answers = await inq
     .prompt([
       {
         type: 'input',
@@ -190,27 +188,25 @@ function addRole() {
         message: 'Which department does the role belong to?',
         choices: depArray,
       },
-    ])
-    .then((answers) => {
-      const sql = `INSERT INTO roles (title, salary, department_id) VALUES (?)`;
-      connection.query(sql, [[answers.roleName, answers.roleSalary, answers.roleDepartment]], (err, res) => {
-        if (err) {
-          console.log(err)
-        firstPrompt();
-        } else {
-          console.log('Added the role successfully');
+    ]);
+  const sql = `INSERT INTO roles (title, salary, department_id) VALUES (?)`;
+  connection.query(sql, [[answers.roleName, answers.roleSalary, answers.roleDepartment]], (err, res) => {
+    if (err) {
+      console.log(err);
+      firstPrompt();
+    } else {
+      console.log('Added the role successfully');
 
-          firstPrompt();
-        }
-      });
-    });
+      firstPrompt();
+    }
+  });
 };
 
 function addEmployee() {
   updateRolesArr();
   updateEmplArr();
 
-  const answers = inquirer.prompt([
+  const answers = inq.prompt([
     {
       type: 'input',
       name: 'employeeFirstName',
@@ -298,10 +294,7 @@ function updateEmplArr() {
 
 // A Function to update the List of Roles Array and updating it everytime a new one is added
 function updateRolesArr() {
-  updateRolesArr();
-  updateEmployeeArr();
-
-  const answers = inquirer.prompt([
+  const answers = inq.prompt([
     {
       type: 'list',
       name: 'employeeSelect',
@@ -326,6 +319,9 @@ function updateRolesArr() {
       firstPrompt();
     }
   });
+  updateRolesArr();
+  updateEmployeeArr();
+
 }
 
 // Function for updating the Role of the Employee
