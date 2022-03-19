@@ -319,7 +319,7 @@ async function updateRole() {
     }
   });
   updateRolesArr();
-  updateEmployeeArr();
+  updateEmplArr()
 
 }
 
