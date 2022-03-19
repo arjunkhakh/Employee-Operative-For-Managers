@@ -168,10 +168,7 @@ async function addDepartment() {
 
 // Adding A Role Function
 async function addRole() {
-  updateRolesArr()
-  updateDepArray()
-    const answers = await inq
-    .prompt([
+    const answers = await inq.prompt([
       {
         type: 'input',
         name: 'roleName',
@@ -200,12 +197,11 @@ async function addRole() {
       firstPrompt();
     }
   });
+  updateRolesArr()
+  updateDepArray()
 };
 
 function addEmployee() {
-  updateRolesArr();
-  updateEmplArr();
-
   const answers = inq.prompt([
     {
       type: 'input',
@@ -239,6 +235,8 @@ function addEmployee() {
       firstPrompt();
     }
   });
+  updateRolesArr();
+  updateEmplArr();
 }
 
 // Empty Arrays to start off the list of Departments, Roles and Employees
