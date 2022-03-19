@@ -142,6 +142,7 @@ function viewEmployee() {
 
 // Adding A Department Function
 function addDepartment() {
+  updateDepArray()
     return inquirer
     .prompt([
       {
@@ -166,6 +167,8 @@ function addDepartment() {
 
 // Adding A Role Function
 function addRole() {
+  updateRolesArr()
+  updateDepArray()
     return inquirer
     .prompt([
       {
@@ -199,18 +202,59 @@ function addRole() {
     });
 };
 
-// An Empty Array to start off the list of Departments
+function addEmployee() {
+  updateRolesArr();
+  updateEmplArr();
+
+  const answers = inquirer.prompt([
+    {
+      type: 'input',
+      name: 'employeeFirstName',
+      message: "What is the employee's first name?",
+    },
+    {
+      type: 'input',
+      name: 'employeeLastName',
+      message: "What is the employee's last name?",
+    },
+    {
+      type: 'list',
+      name: 'employeeRole',
+      message: "What is the employee's role?",
+      choices: rolesArr,
+    },
+    {
+      type: 'list',
+      name: 'employeeManager',
+      message: "Who is the employee's manager?",
+      choices: employeeArr,
+    },
+  ]);
+  const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?)`;
+  connection.query(sql, [[answers.employeeFirstName, answers.employeeLastName, answers.employeeRole, answers.employeeManager]], (err, res) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log('Added the employee successfully');
+      firstPrompt();
+    }
+  });
+}
+
+// Empty Arrays to start off the list of Departments, Roles and Employees
 const depArray = [];
+const rolesArr = [];
+const employeeArr = []
 
 // A Function to update the array of departments. It will start off as an empty array and will push all the new ones into the empty array
 function updateDepArray() {
   departmentArr = [];
   const sql = `SELECT * FROM department`;
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     connection.query(sql, (err, res) => {
       if (err) {
-        console.log(err);
-        reject();
+        firstPrompt();
+        throw err;
       } else {
         res.forEach((department) => {
           let departmentObj = {
@@ -222,5 +266,58 @@ function updateDepArray() {
         resolve();
       }
     });
+  });
+}
+
+function updateEmplArr() {
+  employeeArr = [];
+  const sql = `SELECT * FROM employee`;
+  return new Promise((resolve) => {
+    connection.query(sql, (err, res) => {
+      if (err) {
+        firstPrompt();
+        throw err
+      } else {
+        res.forEach((employee) => {
+          let employeeObj = {
+            name: employee.first_name + ' ' + employee.last_name,
+            value: employee.id,
+          };
+          employeeArr.push(employeeObj);
+        });
+        resolve();
+      }
+    });
+  });
+}
+
+function updateRolesArr() {
+  updateRolesArr();
+  updateEmployeeArr();
+
+  const answers = inquirer.prompt([
+    {
+      type: 'list',
+      name: 'employeeSelect',
+      message: "Which employee's role do you want to update?",
+      choices: employeeArr,
+    },
+    {
+      type: 'list',
+      name: 'roleSelect',
+      message: 'Which role do you want to assign the selected employee?',
+      choices: rolesArr,
+    },
+  ]);
+
+  const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
+  connection.query(sql, [[answers.roleSelect], [answers.employeeSelect]], (err, res) => {
+    if (err) {
+      firstPrompt();
+      throw err;
+    } else {
+      console.log("Updated the employee's role successfully");
+      firstPrompt();
+    }
   });
 }
