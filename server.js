@@ -168,6 +168,8 @@ async function addDepartment() {
 
 // Adding A Role Function
 async function addRole() {
+  updateRolesArr()
+  updateDepArray()
     const answers = await inq.prompt([
       {
         type: 'input',
@@ -197,12 +199,13 @@ async function addRole() {
       firstPrompt();
     }
   });
-  updateRolesArr()
-  updateDepArray()
+  
 };
 
-function addEmployee() {
-  const answers = inq.prompt([
+async function addEmployee() {
+  updateRolesArr();
+  updateEmplArr();
+  const answers = await inq.prompt([
     {
       type: 'input',
       name: 'employeeFirstName',
@@ -235,18 +238,16 @@ function addEmployee() {
       firstPrompt();
     }
   });
-  updateRolesArr();
-  updateEmplArr();
 }
 
 // Empty Arrays to start off the list of Departments, Roles and Employees
-const depArray = [];
-const rolesArr = [];
-const employeeArr = []
+let depArray = [];
+let rolesArr = [];
+let employeeArr = []
 
 // A Function to update the array of departments. It will start off as an empty array and will push all the new ones into the empty array
 function updateDepArray() {
-  departmentArr = [];
+  depArray = [];
   const sql = `SELECT * FROM department`;
   return new Promise((resolve) => {
     connection.query(sql, (err, res) => {
@@ -259,7 +260,7 @@ function updateDepArray() {
             name: department.name,
             value: department.id,
           };
-          departmentArr.push(departmentObj);
+          depArray.push(departmentObj);
         });
         resolve();
       }
@@ -290,9 +291,9 @@ function updateEmplArr() {
   });
 }
 
-// A Function to update the List of Roles Array and updating it everytime a new one is added
-function updateRolesArr() {
-  const answers = inq.prompt([
+// Function for updating the Role of the Employee
+async function updateRole() {
+  const answers = await inq.prompt([
     {
       type: 'list',
       name: 'employeeSelect',
@@ -322,22 +323,22 @@ function updateRolesArr() {
 
 }
 
-// Function for updating the Role of the Employee
-function updateRole() {
-  employeeArr = [];
-  const sql = `SELECT * FROM employee`;
-  return new Promise((resolve, reject) => {
+// A Function to update the List of Roles Array and updating it everytime a new one is added
+function updateRolesArr() {
+  rolesArr = [];
+  const sql = `SELECT * FROM roles`;
+  return new Promise((resolve) => {
     connection.query(sql, (err, res) => {
       if (err) {
         console.log(err)
         firstPrompt();
       } else {
-        res.forEach((employee) => {
-          let employeeObj = {
-            name: employee.first_name + ' ' + employee.last_name,
-            value: employee.id,
+        res.forEach((role) => {
+          let roleObj = {
+            name: role.title,
+            value: role.id,
           };
-          employeeArr.push(employeeObj);
+          rolesArr.push(roleObj);
         });
         resolve();
       }
