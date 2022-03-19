@@ -104,7 +104,8 @@ function viewDepartment() {
 
     connection.query(sql, (err, table) => {
         if (err) {
-            return err
+          console.log(err)
+          firstPrompt();
         } else {
             console.table(table)
             firstPrompt();
@@ -118,7 +119,8 @@ function viewRoles() {
 
     connection.query(sql, (err, table) => {
         if (err) {
-            return err
+          console.log(err)
+          firstPrompt();
         } else {
             console.table(table)
             firstPrompt();
@@ -132,7 +134,8 @@ function viewEmployee() {
 
     connection.query(sql, (err, table) => {
         if (err) {
-            return err
+          console.log(err)
+          firstPrompt();
         } else {
             console.table(table)
             firstPrompt();
@@ -155,8 +158,8 @@ function addDepartment() {
       const sql = `INSERT INTO department(name) VALUES (?)`;
       connection.query(sql, answer.departmentName, (err, res) => {
         if (err) {
-          console.log(err);
-          return;
+          console.log(err)
+         firstPrompt();
         } else {
           console.log('Added the department successfully');
           firstPrompt();
@@ -192,7 +195,8 @@ function addRole() {
       const sql = `INSERT INTO roles (title, salary, department_id) VALUES (?)`;
       connection.query(sql, [[answers.roleName, answers.roleSalary, answers.roleDepartment]], (err, res) => {
         if (err) {
-          console.log(err);
+          console.log(err)
+        firstPrompt();
         } else {
           console.log('Added the role successfully');
 
@@ -253,8 +257,8 @@ function updateDepArray() {
   return new Promise((resolve) => {
     connection.query(sql, (err, res) => {
       if (err) {
+        console.log(err)
         firstPrompt();
-        throw err;
       } else {
         res.forEach((department) => {
           let departmentObj = {
@@ -269,14 +273,15 @@ function updateDepArray() {
   });
 }
 
+// A Function to update the list of employees array and updating it everytime a new one is added
 function updateEmplArr() {
   employeeArr = [];
   const sql = `SELECT * FROM employee`;
   return new Promise((resolve) => {
     connection.query(sql, (err, res) => {
       if (err) {
+        console.log(err)
         firstPrompt();
-        throw err
       } else {
         res.forEach((employee) => {
           let employeeObj = {
@@ -291,6 +296,7 @@ function updateEmplArr() {
   });
 }
 
+// A Function to update the List of Roles Array and updating it everytime a new one is added
 function updateRolesArr() {
   updateRolesArr();
   updateEmployeeArr();
@@ -313,11 +319,34 @@ function updateRolesArr() {
   const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
   connection.query(sql, [[answers.roleSelect], [answers.employeeSelect]], (err, res) => {
     if (err) {
-      firstPrompt();
-      throw err;
+      console.log(err)
+        firstPrompt();
     } else {
       console.log("Updated the employee's role successfully");
       firstPrompt();
     }
+  });
+}
+
+// Function for updating the Role of the Employee
+function updateRole() {
+  employeeArr = [];
+  const sql = `SELECT * FROM employee`;
+  return new Promise((resolve, reject) => {
+    connection.query(sql, (err, res) => {
+      if (err) {
+        console.log(err)
+        firstPrompt();
+      } else {
+        res.forEach((employee) => {
+          let employeeObj = {
+            name: employee.first_name + ' ' + employee.last_name,
+            value: employee.id,
+          };
+          employeeArr.push(employeeObj);
+        });
+        resolve();
+      }
+    });
   });
 }
